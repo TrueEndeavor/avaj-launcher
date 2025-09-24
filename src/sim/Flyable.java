@@ -1,7 +1,13 @@
 package sim;
 
-public interface Flyable
+public abstract class Flyable
 {
-	void updateConditions();
-	void registerTower(WeatherTower p_tower);
+	protected WeatherTower weatherTower;
+
+	public abstract void updateConditions();
+	public void registerTower(WeatherTower p_tower)
+	{
+		this.weatherTower = p_tower;
+		p_tower.register(this);
+	}
 }
