@@ -9,5 +9,11 @@ public class Helicopter extends Aircraft
 
 	public void updateConditions()
 	{
+		 System.out.println(
+            "Helicopter#" + name + "(" + id + ") notified @ [" +
+            coordinates.getLongitude() + "," +
+            coordinates.getLatitude() + "," +
+            coordinates.getHeight() + "]"
+        );
 	}
 }

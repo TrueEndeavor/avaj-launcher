@@ -9,5 +9,11 @@ public class Baloon extends Aircraft
 
 	public void updateConditions()
 	{
+		System.out.println(
+            "Baloon#" + name + "(" + id + ") notified @ [" +
+            coordinates.getLongitude() + "," +
+            coordinates.getLatitude() + "," +
+            coordinates.getHeight() + "]"
+        );
 	}
 }
