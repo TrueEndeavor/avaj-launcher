@@ -14,6 +14,7 @@ SRC_FILES = $(SRC_DIR)/sim/Simulator.java \
 			$(SRC_DIR)/sim/WeatherProvider.java \
 			$(SRC_DIR)/sim/AircraftFactory.java \
 			$(SRC_DIR)/sim/TestTowerFlyable.java \
+			$(SRC_DIR)/sim/TestWeatherTypes.java \
 
 JAVAC = javac
 JAVA  = java

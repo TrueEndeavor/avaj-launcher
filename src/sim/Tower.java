@@ -11,11 +11,17 @@ public class Tower
         if (p_flyable != null && !observers.contains(p_flyable))
 		{
             observers.add(p_flyable);
+			Aircraft a = (Aircraft) p_flyable;
+			System.out.println("Tower says: " +
+				a.getClass().getSimpleName() + "#" + a.name + "(" + a.id + ") registered to weather tower.");
         }
     }
 
     public void unregister(Flyable p_flyable) {
         observers.remove(p_flyable);
+		Aircraft a = (Aircraft) p_flyable;
+		System.out.println("Tower says: " +
+			a.getClass().getSimpleName() + "#" + a.name + "(" + a.id + ") unregistered from weather tower.");
     }
 
     protected void conditionChanged()
