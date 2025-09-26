@@ -12,7 +12,7 @@ public class Tower
 		{
             observers.add(p_flyable);
 			Aircraft a = (Aircraft) p_flyable;
-			System.out.println("Tower says: " +
+			Logger.log("Tower says: " +
 				a.getClass().getSimpleName() + "#" + a.name + "(" + a.id + ") registered to weather tower.");
         }
     }
@@ -20,7 +20,7 @@ public class Tower
     public void unregister(Flyable p_flyable) {
         observers.remove(p_flyable);
 		Aircraft a = (Aircraft) p_flyable;
-		System.out.println("Tower says: " +
+		Logger.log("Tower says: " +
 			a.getClass().getSimpleName() + "#" + a.name + "(" + a.id + ") unregistered from weather tower.");
     }
 

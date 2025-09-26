@@ -32,12 +32,12 @@ public abstract class Aircraft extends Flyable
 
         if (msg != null && !msg.isEmpty())
 		{
-            System.out.println(tag() + ": " + msg);
+            Logger.log(tag() + ": " + msg);
         }
 
         if (h == 0)
 		{
-            System.out.println(tag() + " landing.");
+            Logger.log(tag() + " landing.");
             weatherTower.unregister(this);
         }
     }
