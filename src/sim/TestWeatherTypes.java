@@ -111,6 +111,9 @@ public class TestWeatherTypes {
         System.out.println();
         System.out.println("Heights by cycle (h only; does not affect 2D distances):");
         printHeightTable(samples);
+
+        tower.unregister(h1);
+        tower.unregister(b1);
     }
 
     // capture helper: sample all aircraft at this cycle
