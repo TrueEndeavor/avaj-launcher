@@ -111,6 +111,10 @@ public class Simulator
 
 				// NOTE: We are intentionally NOT running the simulation loop yet.
 				// Next micro-step: run 'cycles' times -> tower.changeWeather();
+				// --- 4) RUN the simulation (one line loop) ---
+				for (int i = 0; i < cycles; i++) {
+					tower.changeWeather();
+				}
 
 			} catch (IOException e) {
 				Logger.log("Error: cannot read scenario file: " + e.getMessage());
