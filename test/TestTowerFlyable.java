@@ -1,4 +1,10 @@
-package sim;
+package test;
+
+import com.avaj.aircraft.*;
+import com.avaj.tower.*;
+import com.avaj.weather.*;
+import com.avaj.factory.*;
+import com.avaj.util.*;
 
 public class TestTowerFlyable
 {

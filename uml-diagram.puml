@@ -1,0 +1,333 @@
+@startuml avaj-launcher
+!define COMPOSITION_COLOR #000000
+!define INHERITANCE_COLOR #000000
+
+title Avaj-Launcher - Aircraft Weather Simulation\nClass Diagram
+
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam groupInheritance 2
+
+' ============================================================================
+' CORE PACKAGE - Main Application Classes
+' ============================================================================
+
+package "sim (Core)" {
+
+    ' ========== Abstract Base Classes ==========
+
+    abstract class Flyable {
+        # weatherTower : WeatherTower
+        --
+        + {abstract} updateConditions() : void
+        + registerTower(p_tower : WeatherTower) : void
+    }
+    note right of Flyable
+        Base class for all flying objects.
+        Part of Observer pattern - observers.
+    end note
+
+    abstract class Aircraft {
+        # {field} id : long
+        # {field} name : String
+        # coordinates : Coordinates
+        --
+        # Aircraft(p_id : long, p_name : String, p_coordinate : Coordinates)
+        # tag() : String
+        # moveAndLog(dLon : int, dLat : int, dH : int, msg : String) : void
+    }
+    note right of Aircraft
+        Base class for all aircraft types.
+        Handles position updates, logging,
+        and landing (unregister at height=0).
+    end note
+
+    ' ========== Concrete Aircraft Classes ==========
+
+    class Baloon {
+        + Baloon(p_id : long, p_name : String, p_coordinates : Coordinates)
+        + updateConditions() : void
+    }
+    note right of Baloon
+        Weather reactions:
+        SUN:  lon+2, h+4
+        RAIN: h-5
+        FOG:  h-3
+        SNOW: h-15
+    end note
+
+    class Helicopter {
+        + Helicopter(p_id : long, p_name : String, p_coordinates : Coordinates)
+        + updateConditions() : void
+    }
+    note right of Helicopter
+        Weather reactions:
+        SUN:  lon+10, h+2
+        RAIN: lon+5
+        FOG:  lon+1
+        SNOW: h-12
+    end note
+
+    class JetPlane {
+        + JetPlane(p_id : long, p_name : String, p_coordinates : Coordinates)
+        + updateConditions() : void
+    }
+    note right of JetPlane
+        Weather reactions:
+        SUN:  lat+10, h+2
+        RAIN: lat+5
+        FOG:  lat+1
+        SNOW: h-7
+    end note
+
+    ' ========== Observer Pattern - Tower Classes ==========
+
+    class Tower {
+        - observers : List<Flyable>
+        --
+        + register(p_flyable : Flyable) : void
+        + unregister(p_flyable : Flyable) : void
+        # conditionChanged() : void
+    }
+    note right of Tower
+        Observer pattern - Subject.
+        Maintains list of registered Flyables.
+        Notifies all observers when conditions change.
+        Uses snapshot pattern for safe iteration.
+    end note
+
+    class WeatherTower {
+        + getWeather(p_coordinates : Coordinates) : String
+        + changeWeather() : void
+    }
+    note right of WeatherTower
+        Extends Tower to provide weather information.
+        changeWeather() triggers conditionChanged()
+        which notifies all registered aircraft.
+    end note
+
+    ' ========== Singleton - Weather Provider ==========
+
+    class WeatherProvider <<Singleton>> {
+        - {static} s_instance : WeatherProvider
+        - {static} WEATHER[] : String = {"SUN", "RAIN", "FOG", "SNOW"}
+        - i : int
+        --
+        - WeatherProvider()
+        + {static} getInstance() : WeatherProvider
+        + getCurrentWeather(p_coordinates : Coordinates) : String
+    }
+    note right of WeatherProvider
+        Singleton pattern.
+        Cycles through weather types:
+        SUN -> RAIN -> FOG -> SNOW -> repeat
+    end note
+
+    ' ========== Factory Pattern ==========
+
+    class AircraftFactory <<Factory>> <<Singleton>> {
+        - {static} s_instance : AircraftFactory
+        - nextId : long
+        --
+        - AircraftFactory()
+        + {static} getInstance() : AircraftFactory
+        + newAircraft(p_type : String, p_name : String,\n              p_longitude : int, p_latitude : int,\n              p_height : int) : Flyable
+    }
+    note right of AircraftFactory
+        Factory + Singleton patterns.
+        Creates aircraft by type string:
+        "helicopter", "jetplane", "baloon"
+        Generates unique IDs automatically.
+    end note
+
+    ' ========== Value Object ==========
+
+    class Coordinates <<Value Object>> {
+        + {field} longitude : int
+        + {field} latitude : int
+        + {field} height : int
+        --
+        + Coordinates(p_longitude : int, p_latitude : int, p_height : int)
+        + getLongitude() : int
+        + getLatitude() : int
+        + getHeight() : int
+    }
+    note right of Coordinates
+        Immutable value object.
+        Represents 3D position (lon, lat, h).
+        Height clamped to [0, 100].
+    end note
+
+    ' ========== Utility Classes ==========
+
+    class Logger <<Utility>> {
+        - {static} s_out : PrintWriter
+        --
+        - Logger()
+        + {static} init(p_filename : String) : void
+        + {static} log(p_line : String) : void
+        + {static} close() : void
+    }
+    note right of Logger
+        Static utility for file logging.
+        Writes to simulation.txt by default.
+        Thread-safe singleton pattern.
+    end note
+
+    ' ========== Main Entry Point ==========
+
+    class Simulator <<Main>> {
+        - Simulator()
+        --
+        + {static} main(args : String[]) : void
+    }
+    note bottom of Simulator
+        Main entry point. Execution flow:
+        1. Validate args (exactly 1: scenario file path)
+        2. Initialize Logger to "simulation.txt"
+        3. Open and validate scenario file
+        4. Parse first line: cycles (positive integer)
+        5. Parse aircraft lines:
+           Format: TYPE NAME LONGITUDE LATITUDE HEIGHT
+           Validates: coordinates >= 0, height <= 100
+        6. Create Flyable objects via AircraftFactory
+        7. Register all aircraft to WeatherTower
+        8. Execute simulation loop:
+           for (i = 0; i < cycles; i++)
+               tower.changeWeather()
+        9. Error handling: log errors and exit gracefully
+        10. Cleanup: close Logger (flush simulation.txt)
+    end note
+
+}
+
+' ============================================================================
+' TEST PACKAGE - Test Classes
+' ============================================================================
+
+package "sim (Tests)" <<Cloud>> {
+
+    class TestTowerFlyable <<Test>> {
+        + {static} main(args : String[]) : void
+    }
+    note right of TestTowerFlyable
+        Tests Tower observer pattern:
+        - Register multiple flyables
+        - Trigger conditionChanged()
+        - Test unregister functionality
+    end note
+
+    class TestWeatherTypes <<Test>> {
+        + {static} main(args : String[]) : void
+        - {static} capture(...) : void
+        - {static} printHeightTable(...) : void
+        - {static} labelOf(a : Aircraft) : String
+        - {static} idChar(id : long) : char
+        --
+        + Sample <<inner class>>
+    }
+    note right of TestWeatherTypes
+        Visual test with ASCII plot:
+        - Plots aircraft movement (lon vs lat)
+        - Shows height changes per cycle
+        - Displays weather effects visually
+    end note
+
+    class TestMainToFile <<Test>> {
+        + {static} main(args : String[]) : void
+    }
+    note right of TestMainToFile
+        Tests Logger functionality:
+        - Writes to simulation.txt
+        - Tests multiple aircraft
+        - Verifies file output
+    end note
+
+    class TestMainFactory <<Test>> {
+        + {static} main(args : String[]) : void
+    }
+    note right of TestMainFactory
+        Tests AircraftFactory:
+        - Creates aircraft via factory
+        - Tests type parsing
+        - Validates factory pattern
+    end note
+
+}
+
+' ============================================================================
+' RELATIONSHIPS
+' ============================================================================
+
+' --- Inheritance (generalization) ---
+Flyable <|-- Aircraft
+Aircraft <|-- Baloon
+Aircraft <|-- Helicopter
+Aircraft <|-- JetPlane
+Tower <|-- WeatherTower
+
+' --- Composition (strong ownership) ---
+Aircraft *-- Coordinates : owns >
+Tower *-- "0..*" Flyable : contains >
+
+' --- Association ---
+Flyable --> WeatherTower : uses >
+WeatherTower --> WeatherProvider : queries >
+Aircraft ..> Logger : logs via >
+
+' --- Dependencies (creation/usage) ---
+AircraftFactory ..> Baloon : creates >
+AircraftFactory ..> Helicopter : creates >
+AircraftFactory ..> JetPlane : creates >
+AircraftFactory ..> Coordinates : creates >
+
+Simulator ..> Logger : initializes >
+Simulator ..> AircraftFactory : uses >
+Simulator ..> WeatherTower : creates >
+Simulator ..> Flyable : manages >
+
+' --- Test dependencies ---
+TestTowerFlyable ..> WeatherTower : tests
+TestTowerFlyable ..> Helicopter : creates
+TestTowerFlyable ..> Baloon : creates
+TestTowerFlyable ..> Coordinates : creates
+
+TestWeatherTypes ..> WeatherTower : tests
+TestWeatherTypes ..> Helicopter : creates
+TestWeatherTypes ..> Baloon : creates
+TestWeatherTypes ..> JetPlane : creates
+TestWeatherTypes ..> Coordinates : creates
+
+TestMainToFile ..> Logger : tests
+TestMainToFile ..> WeatherTower : tests
+TestMainToFile ..> Helicopter : creates
+TestMainToFile ..> Baloon : creates
+TestMainToFile ..> JetPlane : creates
+TestMainToFile ..> Coordinates : creates
+
+TestMainFactory ..> AircraftFactory : tests
+TestMainFactory ..> Logger : uses
+TestMainFactory ..> WeatherTower : uses
+
+' ============================================================================
+' LEGEND
+' ============================================================================
+
+legend right
+    |= Symbol |= Meaning |
+    | <&arrow-thick-up> | Inheritance/Extension |
+    | <&arrow-right> | Association/Usage |
+    | ..> | Dependency |
+    | *-- | Composition |
+
+    |= Pattern |= Classes |
+    | Observer | Tower, Flyable |
+    | Factory | AircraftFactory |
+    | Singleton | WeatherProvider, AircraftFactory |
+
+    |= Package |= Purpose |
+    | sim (Core) | Main application logic |
+    | sim (Tests) | Test/demo classes |
+end legend
+
+@enduml
