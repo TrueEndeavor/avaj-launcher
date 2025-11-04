@@ -73,5 +73,7 @@ Helicopter H4 50 50 3
 |   4   | (2,0,2)     | SNOW ↓15   | (10,31,7)   | SUN  ↑2    | (140,0,8)   | SUN ↑2     | — |
 
 **Legend:** ↑ climb, ↓ descend, → lateral
+
 **Weather Formula:** (longitude + latitude + height) % 4
+
 **Mapping:** 0=SUN, 1=RAIN, 2=FOG, 3=SNOW
