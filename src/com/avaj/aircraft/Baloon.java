@@ -3,8 +3,14 @@ package com.avaj.aircraft;
 import com.avaj.util.Coordinates;
 
 /*
- * Baloon - light and affected heavily by weather. Rises nicely in sun,
- * but sinks quickly in bad weather (especially snow!). Only moves east in sunny weather.
+ * Baloon - light and heavily affected by weather conditions
+ * Drifts EAST (longitude increases) in sunny weather only
+ *
+ * Movement patterns based on weather:
+ * SUN  - warm air lifts up (+4 height), gentle drift east (+2 longitude)
+ * RAIN - water weight pulls down (-5 height), no horizontal movement
+ * FOG  - cooling air descends slowly (-3 height), no horizontal movement
+ * SNOW - ice and snow cause rapid descent (-15 height), no horizontal movement
  */
 public class Baloon extends Aircraft
 {
@@ -13,25 +19,32 @@ public class Baloon extends Aircraft
 		super(p_id, p_name, p_coordinates);
 	}
 
-	// How this baloon reacts to weather changes
 	public void updateConditions()
 	{
 		String weatherType = weatherTower.getWeather(coordinates);
 
 		switch (weatherType)
 		{
-			case "SUN":    // Best case - warm air lifts us up, drift east
-				moveAndLog(+2, 0, +4, "warm sunny day, drifts a bit east, rising up");
+			case "SUN":
+				// Longitude +2 (EAST), Height +4
+				moveAndLog(+2, 0, +4, "SUN - Warm air lifts up, drift east.");
 				break;
-			case "RAIN":   // Rain adds weight - we sink
-				moveAndLog(0, 0, -5, "drenched in rain, sinking");
+
+			case "RAIN":
+				// Height -5
+				moveAndLog(0, 0, -5, "RAIN - Water weight pulls down.");
 				break;
-			case "FOG":    // Fog makes us lose heat - slow sink
-				moveAndLog(0, 0, -3, "thick fog, slowly sinking");
+
+			case "FOG":
+				// Height -3
+				moveAndLog(0, 0, -3, "FOG - Cooling air, descending slowly.");
 				break;
-			case "SNOW":   // Snow is heavy and cold - rapid descent!
-				moveAndLog(0, 0, -15, "plummeting in snow, loosing altitude fast");
+
+			case "SNOW":
+				// Height -15
+				moveAndLog(0, 0, -15, "SNOW - Ice and snow, rapid descent.");
 				break;
+
 			default:
 				break;
 		}

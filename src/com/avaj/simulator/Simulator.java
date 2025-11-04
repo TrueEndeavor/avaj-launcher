@@ -29,7 +29,9 @@ import com.avaj.util.Logger;
  */
 public class Simulator
 {
-	private Simulator() {}
+	private Simulator()
+	{
+	}
 
 	/*
 	 * Step 1: Validate command line arguments (need exactly one: scenario file path)
@@ -64,13 +66,17 @@ public class Simulator
 	{
 		try (BufferedReader reader = new BufferedReader(new FileReader(scenarioFile)))
 		{
+			// Step 4: Read first line to get number of simulation cycles (must be positive integer)
 			int cycles = parseCycles(reader);
 			Logger.log("Read cycles = " + cycles);
 
 			AircraftFactory factory = AircraftFactory.getInstance();
+			// Step 5: Parse aircraft definitions from remaining lines (TYPE NAME LON LAT HEIGHT)
+			// Step 6: Create aircraft via factory (validates format, coordinates, and type) as and when the defintions are parsed
 			List<Flyable> flyables = parseAircraftDefinitions(reader, factory);
 
 			WeatherTower tower = new WeatherTower();
+			// Step 7: Register all aircraft with the WeatherTower (Observer pattern setup)
 			registerAircraft(flyables, tower);
 
 			runSimulation(tower, cycles);
@@ -128,7 +134,7 @@ public class Simulator
 			{
 				continue;
 			}
-
+			// Step 6: Create aircraft via factory (validates format, coordinates, and type)
 			Flyable flyable = parseAircraftLine(line, lineNo, factory);
 			flyables.add(flyable);
 		}
@@ -176,6 +182,7 @@ public class Simulator
 
 		try
 		{
+			// New aircrafts get created from the factory and launched in the given coordinates
 			return factory.newAircraft(type, name, longitude, latitude, height);
 		}
 		catch (IllegalArgumentException e)
@@ -207,7 +214,7 @@ public class Simulator
 	}
 
 	/*
-	 * Custom exception for simulation errors
+	 * BONUS: Custom exception for simulation errors
 	 */
 	private static class SimulationException extends Exception
 	{

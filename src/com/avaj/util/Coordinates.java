@@ -1,12 +1,9 @@
 package com.avaj.util;
 
 /*
- * Coordinates represents a 3D position: longitude (east-west), latitude (north-south),
- * and height (altitude). It's immutable - once created, coordinates don't change.
- * Aircraft create new Coordinates objects when they move.
- *
- * Height is always kept in the range [0, 100] - aircraft can't fly underground
- * or into space. The moveAndLog method in Aircraft handles the clamping.
+ * Coordinates stores longitude, latitude, and height.
+ * When aircraft moves, it creates a new Coordinates object.
+ * Old object is automatically cleaned up by Java garbage collector.
  */
 public final class Coordinates
 {
