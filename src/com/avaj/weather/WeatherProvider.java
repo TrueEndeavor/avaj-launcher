@@ -23,7 +23,7 @@ public final class WeatherProvider
 	public String getCurrentWeather(Coordinates p_coordinates)
 	{
 		
-		int seed = p_coordinates.getLongitude() + p_coordinates.getLatitude() + p_coordinates.getHeight();
+		int seed = abs(p_coordinates.getLongitude() + p_coordinates.getLatitude() + p_coordinates.getHeight());
 		return WEATHER[seed % WEATHER.length];
 	}
 }
