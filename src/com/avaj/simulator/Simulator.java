@@ -6,6 +6,7 @@ import java.util.*;
 import com.avaj.aircraft.*;
 import com.avaj.factory.AircraftFactory;
 import com.avaj.tower.WeatherTower;
+import com.avaj.util.Coordinates;
 import com.avaj.util.Logger;
 
 /*
@@ -179,11 +180,11 @@ public class Simulator
 		{
 			height = 100;
 		}
-
+		Coordinates coordinates = new Coordinates(longitude, latitude, height);
 		try
 		{
 			// New aircrafts get created from the factory and launched in the given coordinates
-			return factory.newAircraft(type, name, longitude, latitude, height);
+			return factory.newAircraft(type, name, coordinates);
 		}
 		catch (IllegalArgumentException e)
 		{

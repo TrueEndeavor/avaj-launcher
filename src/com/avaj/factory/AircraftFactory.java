@@ -24,11 +24,8 @@ public final class AircraftFactory
 
 	public Flyable newAircraft(String p_type,
 								String p_name,
-								int p_longitude,
-								int p_latitude,
-								int p_height)
+								Coordinates p_coordinates)
 	{
-		Coordinates c = new Coordinates(p_longitude, p_latitude, p_height);
 		long id = nextId++;
 
 		String t;
@@ -43,15 +40,15 @@ public final class AircraftFactory
 
 		if ("helicopter".equals(t))
 		{
-			return new Helicopter(id, p_name, c);
+			return new Helicopter(id, p_name, p_coordinates);
 		}
 		else if ("jetplane".equals(t))
 		{
-			return new JetPlane(id, p_name, c);
+			return new JetPlane(id, p_name, p_coordinates);
 		}
 		else if ("baloon".equals(t) || "balloon".equals(t))
 		{
-			return new Baloon(id, p_name, c);
+			return new Baloon(id, p_name, p_coordinates);
 		}
 
 		throw new IllegalArgumentException("Unknown aircraft type: " + p_type);
